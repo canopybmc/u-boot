@@ -19,6 +19,11 @@
 				#address-cells = <1>;
 				#size-cells = <0>;
 				status = "okay";
+
+				flash@0 {
+					compatible = "jedec,spi-nor";
+					reg = <0>;
+				};
 			};
 		};
 	};
