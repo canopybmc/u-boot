@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+%YAML 1.2
+---
+$id: "http://devicetree.org/schemas/misc/hpe,gxp-eeprom.yaml#"
+$schema: "http://devicetree.org/meta-schemas/core.yaml#"
+
+title: HPE GXP BMC EEPROM
+
+maintainers:
+  - Nick Hawkins <nick.hawkins@hpe.com>
+  - Jean-Marie Verdun <verdun@hpe.com>
+
+description: |
+  Memory-mapped system information area on HPE GXP BMC SoCs.
+  The 256-byte region contains board VPD organized in two
+  128-byte blocks, each protected by a 16-bit checksum.
+  Individual fields are exposed as nvmem cells.
+
+properties:
+  compatible:
+    const: hpe,gxp-eeprom
+
+  reg:
+    maxItems: 1
+
+  "#address-cells":
+    const: 1
+
+  "#size-cells":
+    const: 1
+
+  bootph-all:
+    type: boolean
+
+patternProperties:
+  "^[a-z][a-z0-9-]*@[0-9a-f]+$":
+    type: object
+    description: nvmem cell child nodes
+    properties:
+      reg:
+        maxItems: 1
+    required:
+      - reg
+
+required:
+  - compatible
+  - reg
+
+additionalProperties: false
+
+examples:
+  - |
+    eeprom@a0017f00 {
+        compatible = "hpe,gxp-eeprom";
+        reg = <0xa0017f00 0x100>;
+        #address-cells = <1>;
+        #size-cells = <1>;
+
+        serial-number@1 {
+            reg = <0x01 0x10>;
+        };
+
+        part-number@6d {
+            reg = <0x6d 0x10>;
+        };
+
+        mac-address@84 {
+            reg = <0x84 0x6>;
+        };
+    };
