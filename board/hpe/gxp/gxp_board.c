@@ -71,6 +71,17 @@ int board_fit_config_name_match(const char *name)
 	return -1;
 }
 
+#if CONFIG_IS_ENABLED(DISPLAY_BOARDINFO)
+static void ft_board_show_product(void *blob)
+{
+	const char *model;
+
+	model = fdt_getprop(blob, 0, "model", NULL);
+	if (model)
+		printf("Product: %s\n", model);
+}
+#endif
+
 int ft_board_setup(void *blob, struct bd_info *bd)
 {
 	struct udevice *dev;
@@ -79,11 +90,11 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	ret = sysinfo_get(&dev);
 	if (ret)
-		return 0;
+		goto skip_sysinfo;
 
 	ret = sysinfo_detect(dev);
 	if (ret)
-		return 0;
+		goto skip_sysinfo;
 
 	ret = sysinfo_get_str(dev, SYSID_BOARD_MANUFACTURER, sizeof(str), str);
 	if (!ret)
@@ -96,6 +107,11 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 	ret = sysinfo_get_str(dev, SYSID_SM_BASEBOARD_PRODUCT, sizeof(str), str);
 	if (!ret)
 		fdt_setprop_string(blob, 0, "part-number", str);
+
+skip_sysinfo:
+#if CONFIG_IS_ENABLED(DISPLAY_BOARDINFO)
+	ft_board_show_product(blob);
+#endif
 
 	return 0;
 }
